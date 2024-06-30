@@ -2,6 +2,8 @@ require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const choreRoutes = require('./routes/choreRoutes')
+const userRoutes = require('./routes/userRoutes')
+const cors = require('cors')
 
 
 const app = express()
@@ -12,9 +14,12 @@ app.use((req, res, next) => {
     next()
 })
 
+app.use(cors({origin: "http://localhost:3000"}))
+
 
 //Middleware for checking routes
 app.use("/api/chore", choreRoutes) 
+app.use("/api/user", userRoutes)
 
 //connect to database
 mongoose.connect(process.env.MONGO_URI)
@@ -26,3 +31,7 @@ mongoose.connect(process.env.MONGO_URI)
 .catch((error) => {
     console.log(error)
 })
+
+app.get("*", (req, res) => {
+    res.send("You have reached a route not defined in this API");
+  });

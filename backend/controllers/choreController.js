@@ -1,9 +1,9 @@
 const Chore = require('../models/ChoreModel')
 const mongoose = require('mongoose')
 
-//get all chores
+//get all chores; filter it the way you like with query params
 const getChores = async(req, res) => {
-    const chores = await Chore.find({}).sort({createdAt:-1})
+    const chores = await Chore.find({...req.query}).sort({createdAt:-1})
     res.status(200).json(chores)
 }
 
@@ -19,7 +19,7 @@ const getChore = async(req, res) => {
     const chore = await Chore.findById(id)
 
     if(!chore) {
-        res.status(400).json({error: "Chore does not exist"})
+        return res.status(400).json({error: "Chore does not exist"})
     }
     res.status(200).json(chore)   
 } 
@@ -48,7 +48,7 @@ const deleteChore = async(req, res) => {
     const chore = await Chore.findByIdAndDelete(id)
 
     if(!chore) {
-        res.status(400).json({error: "Chore doesn't exist"})
+        return res.status(400).json({error: "Chore doesn't exist"})
     }
 
     res.status(200).json(chore)

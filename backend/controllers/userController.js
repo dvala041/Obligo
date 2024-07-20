@@ -17,24 +17,26 @@ const loginUser = async(req, res) => {
         const userWithToken = {...user.toObject(), token}
         delete userWithToken.password
 
-        res.status(200).json(userWithToken)
+        return res.status(200).json(userWithToken)
 
     } catch(error) {
-        res.status(400).json({error: error.message})
+        return res.status(400).json({error: error.message})
     }
 } 
 
 //Sign up a user
 const signupUser = async(req, res) => {
-    const {username, password, permission} = req.body
+    const {username, password} = req.body
 
     try {
-        const user = await User.signup(username, password, permission)
+        const user = await User.signup(username, password)
         const token = createToken(user._id)
+        const userWithToken = {...user.toObject(), token}
+        delete userWithToken.password
 
-        res.status(200).json({user, token})
+        return res.status(200).json(userWithToken)
     } catch(error) {
-        res.status(400).json({error: error.message})
+        return res.status(400).json({error: error.message})
     }
 }
 
@@ -54,7 +56,7 @@ const getUser = async(req, res) => {
         return res.status(400).json({error: "User doesn't exist"})
     }
 
-    res.status(200).json(user)
+    return res.status(200).json(user)
 }
 
 module.exports = {

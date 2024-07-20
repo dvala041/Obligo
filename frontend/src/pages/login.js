@@ -15,10 +15,18 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
+import Link from 'next/link'
+import { Grid } from '@mui/material'
 
 
-
-const defaultTheme = createTheme();
+const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#9e8772",
+        contrastText: '#fff',
+      },
+    },
+  });
 
 export default function Login () {
     const {user, loading} = useAuthContext()
@@ -43,9 +51,8 @@ export default function Login () {
 
     return (
         <>
-        <ThemeProvider theme={defaultTheme}>
+        <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
-                <CssBaseline />
                 <Box
                 sx={{
                     marginTop: 8,
@@ -54,10 +61,10 @@ export default function Login () {
                     alignItems: 'center',
                 }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'green' }}>
+                    <Avatar sx={{ m: 1, bgcolor: '#81a651' }}>
                         <LockOutlinedIcon />
                     </Avatar>
-                    <Typography component="h1" variant="h5">
+                    <Typography component="h1" variant="h5" sx={{color: '#9e8772'}}>
                         Sign in
                     </Typography>
                     {error && <Alert severity="error">{error}</Alert>}
@@ -89,10 +96,28 @@ export default function Login () {
                             type="submit"
                             fullWidth
                             variant="contained"
-                            sx={{ mt: 3, mb: 2, backgroundColor: "green" }}
+                            sx={{ mt: 3, mb: 2, backgroundColor: "#81a651", '&:hover': {'backgroundColor': '#81a651'}}}
                         >
                         Sign In
                         </Button>
+
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <Link href="/password" variant="body2">
+                                <Typography sx={{
+                                    'color': 'gray', 'textAlign': 'center', '&:hover': {'color': 'lightblue', 'textDecoration': 'underline'}
+                                    }}> Forgot Password? </Typography>
+                                </Link>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Link href="/signup" variant="body2">
+                                <Typography sx={{
+                                    'color': 'gray', 'textAlign': 'center', '&:hover': {'color': 'lightblue', 'textDecoration': 'underline'}
+                                    }}> Don't have an account? Sign up! </Typography>
+                                </Link>
+                            </Grid>
+                        </Grid>
+
                     </Box>
                 </Box>
             </Container>

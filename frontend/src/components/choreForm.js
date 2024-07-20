@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useLogin } from '@/hooks/useLogin';
+import React, { useState, useEffect } from 'react';
+import { useCreateChore } from '@/hooks/useCreateChore';
 import { useAuthContext } from '@/hooks/useAuthContext';
-import { useRouter } from 'next/router';
+import { useFamilyContext } from '@/hooks/useFamilyContext';
 
 // Components
 import Button from '@mui/material/Button';
@@ -14,54 +14,116 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DatePicker, datePickerToolbarClasses } from '@mui/x-date-pickers/DatePicker';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import dayjs from 'dayjs'
+import Alert from '@mui/material/Alert';
+
 
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: green[500],
+      main: "#9e8772",
       contrastText: '#fff',
     },
   },
 });
 
 const ChoreForm = () => {
-  const { login, isLoading, error } = useLogin();
+  const {family, dispatch: familyDispatch} = useFamilyContext()
+  const {user} = useAuthContext()
+  const { createChore, username, isLoading, error, isSuccess, setIsSuccess, emptyFields} = useCreateChore();
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [dueDate, setDueDate] = useState(dayjs())
+  const [points, setPoints] = useState('')
   const [assigned_user, setAssigned_user] = useState("")
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(username, password);
+    console.log("Chore created")
+    console.log("Title", title)
+    console.log("Description", description)
+    console.log("Due Date", dueDate)
+    console.log("Points", points)
+    console.log("Assigned", assigned_user)
+
+    await createChore(title, description, dueDate, points, assigned_user)
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setTitle("")
+      setDescription("")
+      setDueDate(dayjs())
+      setPoints("")
+      setAssigned_user("")
+
+      // Hide success message after 4 seconds
+      setTimeout(() => {
+        setIsSuccess(false)
+      }, 3000);
+    }
+  }, [isSuccess]);
+
+  useEffect(()=> {
+    const fetchFamily = async() => {
+      const familyResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/family/${user.familyId}`,
+        {headers: {"Authorization": `Bearer ${user.token}`}}
+      )
+
+      const familyJson = await familyResponse.json()
+
+      if(!familyResponse.ok) {
+          setError(familyJson.error)
+      } else {
+          familyDispatch({type: 'SET_FAMILY', payload: familyJson})
+      }
+    }
+
+    //fetch the family if the user has a family ID that's not null and family state is null
+    if(user.familyId && !family) {
+      fetchFamily()
+    }
+
+  }, [])
 
   return (
     <ThemeProvider theme={theme}>
       <Container maxWidth="false">
+      {error && <Alert sx={{marginTop:2}} severity="error">{error}</Alert>}
+      {isSuccess && <Alert sx={{marginTop:2}}severity='success'> Chore Successfully Created </Alert>}
+      <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1}}>
         <Typography
           variant="h6"
           component="h2"
-          sx={{ color: "green", padding: 2, fontWeight: "bold" }}
+          sx={{ color: "#9e8772", padding: 2, fontWeight: "bold" }}
         >
           Create a Chore
         </Typography>
 
         <TextField
           required
+          error={emptyFields.includes("title")}
           id="filled-search"
           label="Chore Title"
           type="search"
           color="primary"
           fullWidth
           margin="normal"
+          value={title}
+          onChange={e=>setTitle(e.target.value)}
+          //sx ={{color: "#f5f5d5"}}
         />
 
         <TextField
           required
+          error={emptyFields.includes("description")}
           id="filled-search"
           label="Chore Description"
           type="search"
@@ -70,31 +132,40 @@ const ChoreForm = () => {
           margin="normal"
           multiline
           rows={2}
+          value={description}
+          onChange={e=>setDescription(e.target.value)}
+          sx={{marginBottom:3}}
         />
 
         {/* Date Picker */}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
-            label="Basic date picker"
+            label="Date"
+            error={true}
+            value={dueDate}
             sx={{ width: '100%' }}
-            renderInput={(params) => <TextField {...params} fullWidth />}
+            renderInput={(params) => <TextField error={true} {...params} fullWidth />}
+            onChange={date=>setDueDate(date)}
           />
         </LocalizationProvider>
-
-
-
 
         {/* Input box for points */}
         <TextField
           id="outlined-number"
+          value={points}
+          error={emptyFields.includes("points")}
           label="Points"
-          type="number"
+          type="text" //don't do type="number" cuz it fucks things up
           fullWidth
           margin="normal"
           placeholder='Points'
           required
           InputLabelProps={{
             shrink: true,
+          }}
+          onChange={e => {
+            const numericInput = e.target.value.replace(/\D/g, '')
+            setPoints(numericInput !== '' ? numericInput : '')
           }}
         />
 
@@ -105,18 +176,34 @@ const ChoreForm = () => {
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={assigned_user}
+          error={emptyFields.includes("assigned_user")}
           label="Assign To"
           onChange={e => setAssigned_user(e.target.value)}
         >
-          <MenuItem value={0}> <em> Everyone </em> </MenuItem>
-          <MenuItem value={10}>David</MenuItem>
-          <MenuItem value={20}>Eric</MenuItem>
-          <MenuItem value={30}>Mami</MenuItem>
+
+          {!user.familyId && <MenuItem value={user._id}>Me</MenuItem> }
+
+          {family && family.members.map((member) => (
+            <MenuItem key={member._id} value={member._id}>{member._id===user._id ? "Me" : member.username} </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
       {/* Select Component for */}
 
+
+      {/* Create Chore Button*/}
+      <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          disabled={isLoading}
+          sx={{ mt: 3, mb: 2, backgroundColor: "#81a651", "&:hover": {backgroundColor: "#81a651"} }}
+      >
+      Create Chore
+      </Button>
+
+      </Box>
       </Container>
     </ThemeProvider>
   );

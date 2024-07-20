@@ -3,7 +3,9 @@ const express = require('express')
 const mongoose = require('mongoose')
 const choreRoutes = require('./routes/choreRoutes')
 const userRoutes = require('./routes/userRoutes')
+const familyRoutes = require('./routes/familyRoutes')
 const cors = require('cors')
+const dataCleanup = require('./cron/cleanup')
 
 
 const app = express()
@@ -20,6 +22,7 @@ app.use(cors({origin: "http://localhost:3000"}))
 //Middleware for checking routes
 app.use("/api/chore", choreRoutes) 
 app.use("/api/user", userRoutes)
+app.use("/api/family", familyRoutes)
 
 //connect to database
 mongoose.connect(process.env.MONGO_URI)

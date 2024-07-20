@@ -12,6 +12,14 @@ export const authReducer = (state, action) => {
             return  {user: null, loading: false}
         case "LOADING":
             return {...state, loading: true}
+        case "UPDATE_USER":
+            return {
+                ...state, //spreads the global state props like dispatch, user, and loading
+                user: { //overrides the user property in state with an object that spreads user's props and replaces the familyId prop in user
+                    ...state.user,
+                    ...action.payload
+                }
+            }
         default:
             return state
     }

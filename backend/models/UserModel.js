@@ -20,9 +20,14 @@ const userSchema = new schema({
         type: Number,
         default: 0
     },
-    permission: {
+    role: {
         type: String,
-        required: true
+        default: 'User'
+    },
+    familyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Family",
+        default: null
     }
 })
 
@@ -45,7 +50,7 @@ userSchema.statics.login = async function(username, password) {
     return user
 }
 
-userSchema.statics.signup = async function(username, password, permission) {
+userSchema.statics.signup = async function(username, password) {
     if(!username || !password) {
         throw Error("All fields must be filled")
     }
@@ -62,7 +67,7 @@ userSchema.statics.signup = async function(username, password, permission) {
     const salt = await bcrypt.genSalt(10)
     const hash = await bcrypt.hash(password, salt)
 
-    const user = await this.create({username, password: hash, permission})
+    const user = await this.create({username, password: hash})
     return user
 }
 

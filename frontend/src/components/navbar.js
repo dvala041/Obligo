@@ -15,11 +15,13 @@ import AdbIcon from '@mui/icons-material/Adb';
 import { useLogout } from '@/hooks/useLogout';
 import { useAuthContext } from '@/hooks/useAuthContext';
 import Link from 'next/link';
+import { useRouter } from 'next/router'
 
 // const pages = ['Completed', 'All chores'];
 // const settings = ['Profile', 'Logout'];
 
 function Navbar() {
+  const router = useRouter()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const {logout} = useLogout()
@@ -45,6 +47,7 @@ function Navbar() {
   };
 
   const handleProfile = () => {
+    router.push("/profile")
     console.log("Viewing Profile")
   }
 
@@ -62,17 +65,18 @@ function Navbar() {
   }
 
   useEffect(() => {
-    if((!loading && user) && user.permission == "Admin") {
+    if((!loading && user) && (user.role === "Admin" || user.role === "User") ) {
       setAdmin(true)
-      setPages(["Completed", "All Chores", "Assign"])
+      setPages(["Completed", "All Chores", "Family", "Assign"])
     } else {
-      setPages(["Completed", "All Chores"])
+      setPages(["Completed", "All Chores", "Family"])
       setAdmin(false)
     }
+    setAnchorElUser(null) //this fixes a bug i had where the userMenu would open whenever i logged in
   },[user, loading, setAdmin])
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "white", height: '80px' }}> {/* Increase height to 80px */}
+    <AppBar position="static" sx={{ backgroundColor: "#81a651", height: '80px' }}> {/* Increase height to 80px */}
       <Container maxWidth="xl" sx={{ height: '100%' }}> {/* Make the container fill the height */}
         <Toolbar disableGutters sx={{ height: '100%', alignItems: 'center' }}> {/* Make the toolbar fill the height and vertically center its contents */}
           <Link href="/" passHref>
@@ -90,7 +94,7 @@ function Navbar() {
               fontFamily: 'sans-serif',
               fontWeight: 700,
               letterSpacing: '.3rem',
-              color: 'green',
+              color: '#f5f5d5',
               textDecoration: 'none',
             }}
           >
@@ -102,22 +106,12 @@ function Navbar() {
              <Link key={page} href={`/${page.toLowerCase().replace(' ', '-')}`} passHref>
              <Button
               onClick={handleCloseNavMenu}
-              sx={{ display: {xs: "none", md: "flex"}, mx: 1, color: 'green', fontFamily: "calibri", textTransform: "none", fontSize: 'inherit' }}
+              sx={{ display: {xs: "none", md: "flex"}, mx: 1, color: '#f5f5d5', fontFamily: "calibri", textTransform: "none", fontSize: 'inherit' }}
             >
               {page}
             </Button>
             </Link>
           ))}
-{/* 
-          {admin &&
-            <Button
-                onClick={handleCloseNavMenu}
-                sx={{ display: {xs:"none", md: "flex"}, mx: 1, color: 'green', fontFamily: "calibri", textTransform: "none", fontSize: 'inherit' }}
-                component="a" href={`/createChore`}
-              >
-                Assign
-            </Button>
-          } */}
 
           <Box sx={{ flexGrow: 1 }} /> {/* This takes up max space to the left of the components after it */}
 
@@ -130,7 +124,7 @@ function Navbar() {
             sx={{ mr: 2, display: { xs: 'flex', md: 'none' } }}
             onClick={handleOpenNavMenu}
           >
-            <MenuIcon sx={{ color: 'green' }} />
+            <MenuIcon sx={{ color: '#f5f5d5' }} />
           </IconButton>
 
           {/* Dropdown Menu for the Menu Icon */}
@@ -160,10 +154,10 @@ function Navbar() {
               </Link>
             ))}
           </Menu>
-
+          {(!loading && user) && (<>
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+              <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" sx={{backgroundColor: "#f9ffe9", color: '#9e8772'}}/>
             </IconButton>
           </Tooltip>
           <Menu
@@ -187,7 +181,7 @@ function Navbar() {
                 <Typography textAlign="center">{setting}</Typography>
               </MenuItem>
             ))}
-          </Menu>
+          </Menu> </>)}
         </Toolbar>
     </Container>
   </AppBar>

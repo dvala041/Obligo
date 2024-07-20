@@ -10,8 +10,13 @@ const Assign = () => {
 
 
     //first check if the user is logged in has permission to go here (not admin or not logged in)
-    if(!loading && !user) {
+    if((!loading && !user)) {
         router.push("/login")
+        return
+    }
+
+    else if(user.role === "Member") {
+        router.push("/")
         return
     }
 

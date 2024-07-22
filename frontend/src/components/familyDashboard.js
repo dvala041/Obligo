@@ -2,7 +2,7 @@ import { useFamilyContext } from "@/hooks/useFamilyContext";
 import { useAuthContext } from "@/hooks/useAuthContext";
 import MemberCard from "./memberCard";
 import { useAddMember } from "@/hooks/useAddMember";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 //Components
@@ -51,8 +51,16 @@ const FamilyDashboard = ({ data }) => {
         } else if (action === "LEAVE_FAMILY") {
             console.log("Left family")
         }
-        handleClose()
     }
+
+    useEffect(() => {
+        if (isSuccess) {
+          handleClose()
+          setIsSuccess(false)
+        }
+      }, [isSuccess]);
+
+
     return (
         <>
             <Container maxWidth="xl" disableGutters>
@@ -93,12 +101,12 @@ const FamilyDashboard = ({ data }) => {
                             display: 'flex',
                             flexDirection: 'column', // changed to column for better stacking
                             alignItems: 'center',
-                            width: {xs: '90%', md:'60%'},
+                            width: {xs: '90%', md:'70%'},
                             margin: {xs: 2, md: 4}, // Adding margin-top for spacing
                         }}
                     >
                         {family && family.members.map(member => (
-                            <MemberCard key={member._id} member={member}/>
+                            <MemberCard key={member._id} member={member} data={data}/>
                         ))}
                     </Box>
 
@@ -107,7 +115,7 @@ const FamilyDashboard = ({ data }) => {
                         display: {xs: 'none', md: 'flex'},
                         flexDirection: 'column', // changed to column for better stacking
                         alignItems: 'center',
-                        width: {md:'40%'},
+                        width: {md:'30%'},
                         margin: {xs: 2, md: 4}, // Adding margin-top for spacing
                         
                         }}>
@@ -154,7 +162,7 @@ const FamilyDashboard = ({ data }) => {
                                 value={role}
                                 required
                                 error={emptyFields.includes("role")}
-                                label="Assign To"
+                                label="Role"
                                 onChange={e => setRole(e.target.value)}
                                 >
 
@@ -201,14 +209,67 @@ const FamilyDashboard = ({ data }) => {
                         marginTop: {xs: 2}, // Adding margin-top for spacing
                         
                         }}>
-                        <form style={{width: '80%' }} noValidate onSubmit={(e)=>handleSubmit(e, "ADD_MEMBER")}>
-                        <Button type="submit" sx ={{
-                            textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:1}, alignSelf: 'center',
-                            '&:hover': {'backgroundColor': '#81a651'}, width: '100%'
+                        <Button onClick={handleOpen} sx ={{
+                            textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:1, md: 2}, alignSelf: 'center',
+                            '&:hover': {'backgroundColor': '#81a651'}, width: '80%'
                             }}>
-                            Add Members
+                            Add Member
                         </Button>
-                        </form>
+                        <Modal
+                        open={open}
+                        onClose={handleClose}
+                    >
+                        <Box component="form" noValidate onSubmit={(e)=>handleSubmit(e, "ADD_MEMBER")} sx  = {data}>
+                        {error && <Alert sx={{marginBottom:2}} severity="error">{error}</Alert>}
+                            <Typography sx={{color: '#9e8772', fontWeight: 'bold'}}>
+                                Add Family Member
+                            </Typography>
+                            <ThemeProvider theme={theme}>
+                            <TextField
+                                required
+                                error={emptyFields.includes("username")}
+                                id="filled-search"
+                                label="Username"
+                                type="search"
+                                color="primary"
+                                fullWidth
+                                //margin="normal"
+                                value={username}
+                                onChange={e=>setUsername(e.target.value)}
+                                sx={{color: '#9e8772'}}
+                            >
+                            </TextField>
+
+                            {/* DROPDOWN FOR SELECTING ROLE */}
+                            {/* Select component for assigning a chore to a family member*/}
+                            <FormControl fullWidth sx={{marginTop: 1}}>
+                                <InputLabel id="demo-simple-select-label"> Role</InputLabel>
+                                <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={role}
+                                required
+                                error={emptyFields.includes("role")}
+                                label="Role"
+                                onChange={e => setRole(e.target.value)}
+                                >
+
+                                    <MenuItem value="Admin"> Admin </MenuItem>
+                                    <MenuItem value="Member"> Member </MenuItem>
+                                </Select>
+                            </FormControl>
+
+
+                            </ThemeProvider>
+                            <Button type="submit" disabled={isLoading} sx ={{
+                                textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:1, md: 2}, alignSelf: 'center',
+                                '&:hover': {'backgroundColor': '#81a651'}, 
+                                }}>
+                                Add Member
+                            </Button>
+                        </Box>
+
+                        </Modal> 
                         {/* if passing additoinal arguments to the handleSubmit you must use an arrow function to prevent
                             the function from being called immediately; doing this makes the function a reference to be called when 
                             the component renders. If you don't do this arrow function, e will be undefined

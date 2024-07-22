@@ -144,36 +144,42 @@ const removeMember = async(req, res) => {
 }
 
 //returns updated User object
-const updateMemberRole = async(req, res) => {
+const updateMember = async(req, res) => {
     const {id: familyId} = req.params 
-    const {userId, role} = req.body 
+    const {userId, role, points, choresComplete} = req.body 
 
-    if(!userId || !role) {
-        return res.status(400).json({error: "Please fill all fields"})
+    let emptyFields = []
+
+    if(!role) {emptyFields.push("role")}
+    if(!points) {emptyFields.push("points")}
+    if(!choresComplete) {emptyFields.push("choresComplete")}
+
+    if(emptyFields.length > 0) {
+        return res.status(400).json({error: "Please fill all fields", emptyFields})
     }
 
     if(!mongoose.isValidObjectId(familyId) || !mongoose.isValidObjectId(userId)) {
-        return res.status(400).json({error: "Invalid id"})
+        return res.status(400).json({error: "Invalid id", emptyFields})
     }
 
     //make sure the user is in the family
     const family = await Family.findById(familyId)
 
     if(!family) {
-        return res.status(400).json({error: "Family doesn't exist"})
+        return res.status(400).json({error: "Family doesn't exist", emptyFields})
     }
 
     const isMember = await Family.findOne({_id: familyId, members: {$in: [userId]}})
 
     if(!isMember) {
-        return res.status(400).json({error: "User is not a member of this family"})
+        return res.status(400).json({error: "User is not a member of this family", emptyFields})
     }
 
     if(role === "Admin" || role === "Member") {
-        const user = await User.findByIdAndUpdate(userId, {role}, {new: true, select: '-password -familyId'})
+        const user = await User.findByIdAndUpdate(userId, {role, points, choresComplete}, {new: true, select: '-password -familyId'})
         return res.status(200).json(user)
     } else {
-        return res.status(400).json({error: "Invalid role"})
+        return res.status(400).json({error: "Invalid role", emptyFields})
     }
 }
 
@@ -220,6 +226,6 @@ module.exports = {
     updateFamily,
     deleteFamily,
     addMember,
-    updateMemberRole,
+    updateMember,
     removeMember
 }

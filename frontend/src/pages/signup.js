@@ -80,6 +80,7 @@ export default function Signup () {
                             autoComplete="username"
                             autoFocus
                             onChange={(e)=>setUsername(e.target.value)}
+                            inputProps={{maxLength: '10'}}
                         />
                         <TextField
                             margin="normal"

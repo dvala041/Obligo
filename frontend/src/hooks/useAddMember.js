@@ -17,7 +17,7 @@ export const useAddMember = () => {
         setError(false)
         setIsLoading(true)
     
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/family/6698818437d01ca1852e7237/addMember`,
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/family/${family._id}/addMember`,
             {
                 method: "PATCH",
                 headers: {"Content-Type": "application/json", "Authorization": `Bearer ${user.token}`},

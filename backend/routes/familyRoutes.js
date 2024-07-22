@@ -8,7 +8,7 @@ const {
     updateFamily,
     deleteFamily,
     addMember,
-    updateMemberRole,
+    updateMember,
     removeMember
 } = require('../controllers/familyController')
 
@@ -33,7 +33,7 @@ router.delete('/:id', deleteFamily)
 router.patch('/:id/addMember', addMember);
 
 // Update a member's role in a family
-router.patch('/:id/updateMemberRole', updateMemberRole);
+router.patch('/:id/updateMember', updateMember);
 
 // Remove a member from a family
 router.patch('/:id/removeMember', removeMember);

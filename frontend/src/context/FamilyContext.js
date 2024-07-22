@@ -16,11 +16,17 @@ export const familyReducer = (state, action) => {
                 ...state.family, members: [...state.family.members, action.payload]
             }}
         case "UPDATE_MEMBER": //payload is a single User object 
-            return {...state, family: state.family.map(
-                (member) => member._id === action.payload._id ? {...member, ...action.payload} : member
+            return {...state, family: {
+                ...state.family, members:
+                    state.family.members.map((member) => member._id === action.payload._id ? {...member, ...action.payload} : member
                 )}
+            }
+            
         case "REMOVE_MEMBER": //payload is a User id
-            return {family: state.family.filter((f)=> f._id != action.payload)}
+            return {...state, family: {
+                ...state.family, members: state.family.members.filter((f) => f._id != action.payload)
+            }}
+
         default:
             return state
     }

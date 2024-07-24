@@ -226,7 +226,7 @@ const leaveFamily = async(req, res) => {
 
 
     //return the userId that we removed from the members array
-    return res.status(200).json({user})
+    return res.status(200).json(user) //I DID {user} AND IT COST ME 20 FUCKING MINUTES TO SOLVE
 }
 
 //edit a family (like name)

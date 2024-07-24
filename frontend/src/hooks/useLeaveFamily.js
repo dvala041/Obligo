@@ -29,7 +29,7 @@ export const useLeaveFamily = () => {
             setError(json.error)
             setIsSuccess(false)
         } else {
-            familyDispatch({type: "DELETE_FAMILY"}) //this sets global family state to null (ik im using delete but same thing)
+            familyDispatch({type: "DELETE_FAMILY"})
             userDispatch({type: "UPDATE_USER", payload: json})
             const user = JSON.parse(localStorage.getItem('user'))
             const updatedUser = {...user, ...json}

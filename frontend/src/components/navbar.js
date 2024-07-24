@@ -100,7 +100,7 @@ function Navbar() {
               textDecoration: 'none',
             }}
           >
-            Chores
+            Obligoat
           </Typography>
           </Link>
 

@@ -3,6 +3,15 @@ import { useReducer, createContext } from "react";
 //export the context
 export const FamilyContext = createContext()
 
+const sortMembersByRole = (members) => {
+    const roleOrder = ["Owner", "Admin", "Member"];
+    
+    return members.sort((a, b) => {
+      return roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role);
+    });
+  };
+  
+
 //export the reducer
 export const familyReducer = (state, action) => {
     console.log('state:', state);
@@ -10,16 +19,19 @@ export const familyReducer = (state, action) => {
 
     switch(action.type) {
         case "SET_FAMILY": //payload is an array of Users
-            return {family: action.payload}
+            return {family: action.payload, members: sortMembersByRole(action.payload.members)}
         case "ADD_MEMBER": //payload is a single User object
             return {...state, family: {
-                ...state.family, members: [...state.family.members, action.payload]
+                ...state.family, members: sortMembersByRole([...state.family.members, action.payload])
+
             }}
         case "UPDATE_MEMBER": //payload is a single User object 
             return {...state, family: {
-                ...state.family, members:
-                    state.family.members.map((member) => member._id === action.payload._id ? {...member, ...action.payload} : member
-                )}
+                ...state.family, members: sortMembersByRole(
+                    state.family.members.map((member) =>
+                      member._id === action.payload._id ? { ...member, ...action.payload } : member
+                    )
+                  )}
             }
             
         case "REMOVE_MEMBER": //payload is a User id

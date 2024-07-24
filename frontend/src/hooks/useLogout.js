@@ -13,7 +13,7 @@ export const useLogout = () => {
         localStorage.removeItem('user')
         dispatch({type: "LOGOUT"})
         choreDispatch({type:"SET_CHORES", payload: null})//set global chore state to null if user logs out
-        familyDispatch({type: "SET_FAMILY", payload: null})
+        familyDispatch({type: "DELETE_FAMILY"}) //simply sets family to null
     }
 
     return {logout}

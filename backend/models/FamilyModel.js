@@ -10,7 +10,12 @@ const familySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         default: []
-    }]
+    }],
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 }, {timestamps:true})
 
 module.exports = mongoose.model("Family", familySchema)

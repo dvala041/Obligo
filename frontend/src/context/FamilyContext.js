@@ -26,6 +26,8 @@ export const familyReducer = (state, action) => {
             return {...state, family: {
                 ...state.family, members: state.family.members.filter((f) => f._id != action.payload)
             }}
+        case "DELETE_FAMILY":
+            return {family: null}
 
         default:
             return state

@@ -3,7 +3,7 @@ import { useAuthContext } from "./useAuthContext"
 import { useFamilyContext } from "./useFamilyContext"
 
 export const useUpdateMember = () => {
-    const {user} = useAuthContext()
+    const {user, dispatch: userDispatch} = useAuthContext()
     const [error, setError] = useState(null)
     const [isLoading, setIsLoading] = useState(null)
     const {family, dispatch: familyDispatch} = useFamilyContext()
@@ -20,7 +20,7 @@ export const useUpdateMember = () => {
             {
                 method: "PATCH",
                 headers: {"Content-Type": "application/json", "Authorization": `Bearer ${user.token}`},
-                body: JSON.stringify({userId: memberId, role, points, choresComplete})
+                body: JSON.stringify({userId: memberId, role, points, choresComplete, editorId: user._id})
             }
         )
 
@@ -32,7 +32,35 @@ export const useUpdateMember = () => {
             setEmptyFields(json.emptyFields)
             setIsSuccess(false)
         } else {
-            familyDispatch({type: "UPDATE_MEMBER", payload: json})
+            familyDispatch({type: "UPDATE_MEMBER", payload: json.user})
+
+            //if the editor was an owner and made someone else an owner
+            if(json.editor) {
+                userDispatch({type: "UPDATE_USER", payload: json.editor}) //update our current user to be an admin
+
+                //also update current user in the global family members array
+                familyDispatch({type: "UPDATE_MEMBER", payload: json.editor})
+
+                //Reflect changes in local storage
+                const user = JSON.parse(localStorage.getItem('user'))
+                const updatedUser = {...user, ...json.editor}
+                localStorage.setItem('user', JSON.stringify(updatedUser))
+            }
+
+            //if we edit ourselves (memberId is the card's Id)
+            if(memberId === user._id) {
+                userDispatch({type: "UPDATE_USER", payload: json.user}) //update our current user to be an admin
+
+                //also update current user in the global family members array
+                familyDispatch({type: "UPDATE_MEMBER", payload: json.user})
+
+                //Reflect changes in local storage
+                const user = JSON.parse(localStorage.getItem('user'))
+                const updatedUser = {...user, ...json.user}
+                localStorage.setItem('user', JSON.stringify(updatedUser))
+
+            }
+
             setEmptyFields([])
             setIsSuccess(true)
         }

@@ -65,8 +65,8 @@ const NoFamily = ({data}) => {
                     justifyContent: { xs: 'center' },
                 }}>
                     {isSuccess && <Alert sx={{marginTop:2}}severity='success'> Family Successfully Created </Alert>}
-                    <Typography sx={{color: '#9e8772'}}>
-                        Looks like you don't have a family. <strong> Create one! </strong>
+                    <Typography sx={{color: '#9e8772', textAlign: 'center'}}>
+                        Looks like you don't have a family. <strong> Create one or get invited to one! </strong>
                     </Typography>
 
                     <Button onClick={handleOpen} sx ={{

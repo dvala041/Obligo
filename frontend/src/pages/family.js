@@ -41,17 +41,21 @@ const Family = () => {
     //fetch family data if page was closed and user comes back
     useEffect(()=> {
         const fetchFamily = async() => {
-          const familyResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/family/${user.familyId}`,
-            {headers: {"Authorization": `Bearer ${user.token}`}}
-          )
-    
-          const familyJson = await familyResponse.json()
-    
-          if(!familyResponse.ok) {
-              setError(familyJson.error)
-          } else {
-              familyDispatch({type: 'SET_FAMILY', payload: familyJson})
-          }
+          try{
+            const familyResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/family/${user.familyId}`,
+              {headers: {"Authorization": `Bearer ${user.token}`}}
+            )
+      
+            const familyJson = await familyResponse.json()
+      
+            if(!familyResponse.ok) {
+                setError(familyJson.error)
+            } else {
+                familyDispatch({type: 'SET_FAMILY', payload: familyJson})
+            }
+          } catch (error) {
+            throw error
+          } 
         }
     
         //fetch the family if the user has a family ID that's not null and family state is null
@@ -65,7 +69,14 @@ const Family = () => {
     return(
         <>
         {!family ? ( 
+          !user ? (
+            <>
+              ...loading
+            </>
+          ) : (
             <NoFamily data={style}/>
+          )
+            
         ) : (
             <>
             <FamilyDashboard data={style}/>

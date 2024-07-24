@@ -55,10 +55,10 @@ const createFamily = async(req, res) => {
         //     return res.status(400).json({error: "Already in a family", emptyFields})
         // }
 
-        const family = await Family.create({name, members: [userId]})
+        const family = await Family.create({name, members: [userId], createdBy: userId})
 
         //UPDATE USER's FIELDS WHEN THEY CREATE A FAMILY
-        const updatedUser = await User.findByIdAndUpdate(userId, {role: "Admin", familyId: family._id}, {new: true, select: '-password'})
+        const updatedUser = await User.findByIdAndUpdate(userId, {role: "Owner", familyId: family._id}, {new: true, select: '-password'})
         const populatedFamily = await Family.findById(family._id).populate("members", "username points choresComplete role")
         return res.status(200).json({family: populatedFamily, user: updatedUser})
 
@@ -108,7 +108,7 @@ const addMember = async(req, res) => {
         return res.status(400).json({error: "User already in family!", emptyFields})
     }
 
-    const newUser = await User.findByIdAndUpdate(user_id, {role, familyId}, {new: true, select: '-password -familyId'})
+    const newUser = await User.findByIdAndUpdate(user_id, {role, familyId, points: 0, choresComplete: 0}, {new: true, select: '-password -familyId'})
     return res.status(200).json(newUser)
 }
 
@@ -138,7 +138,7 @@ const removeMember = async(req, res) => {
     await family.save()
 
      //set their familyId to null and their role to User
-    const user = await User.findByIdAndUpdate(userId, {role: "User", familyId: null}, {new: true, select: '-password'}) 
+    const user = await User.findByIdAndUpdate(userId, {role: "User", familyId: null, points: 0, choresComplete: 0}, {new: true, select: '-password'}) 
 
     return res.status(200).json(user)
 }
@@ -146,13 +146,13 @@ const removeMember = async(req, res) => {
 //returns updated User object
 const updateMember = async(req, res) => {
     const {id: familyId} = req.params 
-    const {userId, role, points, choresComplete} = req.body 
+    const {userId, role, points, choresComplete, editorId} = req.body 
 
     let emptyFields = []
 
     if(!role) {emptyFields.push("role")}
-    if(!points) {emptyFields.push("points")}
-    if(!choresComplete) {emptyFields.push("choresComplete")}
+    if(points === "" || points === null) {emptyFields.push("points")}
+    if(choresComplete === "" || points === null) {emptyFields.push("choresComplete")}
 
     if(emptyFields.length > 0) {
         return res.status(400).json({error: "Please fill all fields", emptyFields})
@@ -175,12 +175,58 @@ const updateMember = async(req, res) => {
         return res.status(400).json({error: "User is not a member of this family", emptyFields})
     }
 
-    if(role === "Admin" || role === "Member") {
+    if(role === "Admin" || role === "Member" || role === "Owner") {
+
+        //if we are changing a user's role to owner first check if person making this change is an owner themselves 
+        //its assumed but i do wanna be very safe
+
+
+        let editor = null 
+
+        //this is for assigning a new owner
+        if(role === "Owner" && userId != editorId) {
+            // if(editorRole !== "Owner") {
+            //     return res.status(400).json({error: "You don't have permission to do this", emptyFields})
+            // }
+            //change the editor's role from "Owner" to "Admin"
+            editor = await User.findByIdAndUpdate(editorId, {role: "Admin"}, {new: true, select: '-password -familyId'})
+        }
+
         const user = await User.findByIdAndUpdate(userId, {role, points, choresComplete}, {new: true, select: '-password -familyId'})
-        return res.status(200).json(user)
+        return res.status(200).json({user, editor})
     } else {
         return res.status(400).json({error: "Invalid role", emptyFields})
     }
+}
+
+const leaveFamily = async(req, res) => {
+    const {id: familyId} = req.params
+    const {userId} = req.body
+
+    if(!mongoose.isValidObjectId(familyId) || !mongoose.isValidObjectId(userId)) {
+        return res.status(400).json({error: "Invalid id"})
+    }
+
+    const family = await Family.findById(familyId)
+
+    if(!family) {
+        return res.status(400).json({error: "Family doesn't exist"})
+    }
+
+    const isMember = await Family.findOne({_id: familyId, members: {$in: [userId]}})
+
+    if(!isMember) {
+        return res.status(400).json({error: "User is not a member of this family"})
+    }
+
+    //Now that we've checked if this is a valid user and family we can proceed with leaving the family
+    await Family.findByIdAndUpdate(familyId, {$pull : {members: userId}})
+    const user = await User.findByIdAndUpdate(userId, {familyId: null, role: "User", points: 0, choresComplete: 0}, 
+        {new: true, select: '-password'})
+
+
+    //return the userId that we removed from the members array
+    return res.status(200).json({user})
 }
 
 //edit a family (like name)
@@ -203,8 +249,13 @@ const updateFamily = async(req, res) => {
 //delete a family
 const deleteFamily = async(req, res) => {
     const {id} = req.params
+    const {userId} = req.body
 
-    if(!mongoose.isValidObjectId(id)) {
+    if(!userId) {
+        return res.status(400).json({error: "Missing userId"})
+    }
+
+    if(!mongoose.isValidObjectId(id) || !mongoose.isValidObjectId(userId)) {
         return res.status(400).json({error: "Invalid id"})
     }
 
@@ -214,9 +265,40 @@ const deleteFamily = async(req, res) => {
         return res.status(400).json({error: "Family doesn't exist"})
     }
 
-    return res.status(200).json(family)
-}
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
+    try {
+        // Update each member in the family's members array
+        await User.updateMany(
+            { _id: { $in: family.members } },
+            {
+                $set: {
+                    points: 0,
+                    choresComplete: 0,
+                    role: 'User',
+                    familyId: null
+                }
+            },
+            { session }
+        );
+
+        // Delete the family
+        await Family.findByIdAndDelete(id, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        const user = await User.findById(userId).select('-password');
+
+        return res.status(200).json(user);
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(500).json({ error: "Something went wrong", details: error.message });
+
+    }
+}
 
 
 module.exports = {
@@ -227,5 +309,6 @@ module.exports = {
     deleteFamily,
     addMember,
     updateMember,
-    removeMember
+    removeMember,
+    leaveFamily
 }

@@ -9,7 +9,8 @@ const {
     deleteFamily,
     addMember,
     updateMember,
-    removeMember
+    removeMember,
+    leaveFamily
 } = require('../controllers/familyController')
 
 router.use(requireAuth)
@@ -32,8 +33,10 @@ router.delete('/:id', deleteFamily)
 // Add a member to a family
 router.patch('/:id/addMember', addMember);
 
-// Update a member's role in a family
+// Update a member's stats in a family
 router.patch('/:id/updateMember', updateMember);
+
+router.patch('/:id/leaveFamily', leaveFamily)
 
 // Remove a member from a family
 router.patch('/:id/removeMember', removeMember);

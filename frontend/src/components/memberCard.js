@@ -94,114 +94,30 @@ const MemberCard = ({member, data}) => {
                     flexDirection: 'row',
                     alignItems: 'start'
                 }}>
-                    <Avatar alt={member.username} src="/static/images/avatar/2.jpg" /> 
+                    <Avatar alt={member.username.charAt(0).toUpperCase()} src="/static/images/avatar/2.jpg" /> 
                     <Box sx={{display: {xs:'flex', md: 'none'}}} flexGrow={1}/>
-                    {user.role ==="Admin" && (
+                    {(user.role ==="Admin" || user.role === "Owner")&& (
                      <>  
-                    <IconButton sx={{color: "#9e8772"}} onClick={handleOpenEdit}>
+                     <IconButton sx={{color: "#9e8772", display: {xs:'flex', md: 'none'}}} onClick={handleOpenEdit}>
                         <EditIcon sx={{display: {xs:'flex', md: 'none'}}}/>
                     </IconButton>
-                    <Modal
-                        open={openEdit}
-                        onClose={handleCloseEdit}
-                    >
-                        <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "EDIT")} sx={data}>
-                        {updateError && <Alert sx={{marginBottom:2}} severity="error">{updateError}</Alert>}
-                            <Typography sx={{color: "#9e8772"}}>
-                                <strong> Edit {member.username} </strong>
-                            </Typography>
-                            <ThemeProvider theme={theme}>
-                            <TextField
-                                id="outlined-number"
-                                value={points}
-                                error={emptyFields.includes("points")}
-                                label="Points"
-                                type="text" //don't do type="number" cuz it fucks things up
-                                fullWidth
-                                margin="normal"
-                                placeholder='Points'
-                                required
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                                onChange={e => {
-                                  const numericInput = e.target.value.replace(/\D/g, '')
-                                  setPoints(numericInput !== '' ? numericInput : '')
-                                }}
-                            >
-                            </TextField>
-
-                            <TextField
-                                id="outlined-number"
-                                value={choresComplete}
-                                error={emptyFields.includes("points")}
-                                label="Chores Complete"
-                                type="text" //don't do type="number" cuz it fucks things up
-                                fullWidth
-                                margin="normal"
-                                placeholder='Chores Complete'
-                                required
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                                onChange={e => {
-                                  const numericInput = e.target.value.replace(/\D/g, '')
-                                  setChoresComplete(numericInput !== '' ? numericInput : '')
-                                }}
-                            >
-                            </TextField>
-
-                            {/* DROPDOWN FOR SELECTING ROLE */}
-                            {/* Select component for assigning a chore to a family member*/}
-                            <FormControl fullWidth sx={{marginTop: 1}}>
-                                <InputLabel id="demo-simple-select-label"> Role</InputLabel>
-                                <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                value={role}
-                                required
-                                error={emptyFields.includes("role")}
-                                label="Role"
-                                onChange={e => setRole(e.target.value)}
-                                >
-
-                                    <MenuItem value="Admin"> Admin </MenuItem>
-                                    <MenuItem value="Member"> Member </MenuItem>
-                                </Select>
-                            </FormControl>
-
-
-                            </ThemeProvider>
-
-
-                            <Button type="submit" sx ={{
-                            textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:2}, alignSelf: 'center',
-                            '&:hover': {'backgroundColor': '#81a651'}, width:"50%"
-                            }}>
-                                Done
-                            </Button>
-                        </Box>
-                    </Modal>
-                    <IconButton sx={{color: "#9e8772"}} onClick={handleOpenRemove}>
-                        <PersonRemoveIcon sx={{display: {xs:'flex', md: 'none'}}}/>
-                    </IconButton>
-                    <Modal
-                        open={openRemove}
-                        onClose={handleCloseRemove}
-                    >
-                        <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "REMOVE")} sx={data}>
-                            <Typography sx={{color: "#9e8772"}}>
-                                <strong>Are you sure you want to remove {member.username}? </strong>
-                            </Typography>
-                            <Button type="submit" sx ={{
-                            textTransform: 'none', backgroundColor: '#cd0037', color: 'white', mt: {xs:2}, alignSelf: 'center',
-                            '&:hover': {'backgroundColor': '#cd0037'}, width:"50%"
-                            }}>
-                                Remove
-                            </Button>
-                        </Box>
-                    </Modal>
+                     {/* OTHER MEMBERS CARDS ON SMALL SCREENS (ICONS NOT DISABLED) */}
+                     {member._id !== user._id ? (
+                        <>
+                        <IconButton sx={{color: "#9e8772", display: {xs:'flex', md: 'none'}}} onClick={handleOpenRemove}>
+                            <PersonRemoveIcon sx={{display: {xs:'flex', md: 'none'}}}/>
+                        </IconButton>
                     </>
+                    // YOUR OWN MEMBER CARD ON SMALL SCREENS (DISABLES EDIT AND REMOVE ICONS)
+                     ) : (
+                        <>
+                        <IconButton disabled sx={{ color: "#9e8772", display: { xs: 'flex', md: 'none' } }} onClick={handleRemoveUser}>
+                            <PersonRemoveIcon />
+                        </IconButton>
+                        </>
+                     )}
+                    </>
+                    
                     )}
                 </Box>
 
@@ -255,126 +171,22 @@ const MemberCard = ({member, data}) => {
                     </Box>
                 </Box>
 
-                {user.role === "Admin" && (
+                {/* ICON BUTTONS FOR BIG SCREENS */}
+                {(user.role ==="Admin" || user.role === "Owner") && (
                 <>
                 <Box sx={{ display: { xs: "none", md: "flex" } }} flexGrow={1} />
-                {member._id !== user._id ? (
+                    <IconButton sx={{ color: "#9e8772", display: { xs: 'none', md: 'flex' } }} onClick={handleOpenEdit}>
+                        <EditIcon />
+                    </IconButton>
+                {member._id !== user._id ? ( 
                     <>
-                        <IconButton sx={{ color: "#9e8772", display: { xs: 'none', md: 'flex' } }} onClick={handleOpenEdit}>
-                            <EditIcon />
-                        </IconButton>
-
-                        {/* MODAL FOR EDITING USER */}
-                        <Modal
-                        open={openEdit}
-                        onClose={handleCloseEdit}
-                        >
-                        <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "EDIT")} sx={data}>
-                        {updateError && <Alert sx={{marginBottom:2}} severity="error">{updateError}</Alert>}
-                            <Typography sx={{color: "#9e8772"}}>
-                                <strong> Edit {member.username} </strong>
-                            </Typography>
-                            <ThemeProvider theme={theme}>
-                            <TextField
-                                id="outlined-number"
-                                value={points}
-                                error={emptyFields.includes("points")}
-                                label="Points"
-                                type="text" //don't do type="number" cuz it fucks things up
-                                fullWidth
-                                margin="normal"
-                                placeholder='Points'
-                                required
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                                onChange={e => {
-                                  const numericInput = e.target.value.replace(/\D/g, '')
-                                  setPoints(numericInput !== '' ? numericInput : '')
-                                }}
-                            >
-                            </TextField>
-
-                            <TextField
-                                id="outlined-number"
-                                value={choresComplete}
-                                error={emptyFields.includes("points")}
-                                label="Chores Complete"
-                                type="text" //don't do type="number" cuz it fucks things up
-                                fullWidth
-                                margin="normal"
-                                placeholder='Chores Complete'
-                                required
-                                InputLabelProps={{
-                                  shrink: true,
-                                }}
-                                onChange={e => {
-                                  const numericInput = e.target.value.replace(/\D/g, '')
-                                  setChoresComplete(numericInput !== '' ? numericInput : '')
-                                }}
-                            >
-                            </TextField>
-
-                            {/* DROPDOWN FOR SELECTING ROLE */}
-                            {/* Select component for assigning a chore to a family member*/}
-                            <FormControl fullWidth sx={{marginTop: 1}}>
-                                <InputLabel id="demo-simple-select-label"> Role</InputLabel>
-                                <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                value={role}
-                                required
-                                error={emptyFields.includes("role")}
-                                label="Role"
-                                onChange={e => setRole(e.target.value)}
-                                >
-
-                                    <MenuItem value="Admin"> Admin </MenuItem>
-                                    <MenuItem value="Member"> Member </MenuItem>
-                                </Select>
-                            </FormControl>
-
-
-                            </ThemeProvider>
-
-
-                            <Button type="submit" sx ={{
-                            textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:2}, alignSelf: 'center',
-                            '&:hover': {'backgroundColor': '#81a651'}, width:"50%"
-                            }}>
-                                Done
-                            </Button>
-                        </Box>
-                    </Modal>
-
-                        {/* END OF MODAL FOR EDITING USER */}
-
                         <IconButton sx={{ color: "#9e8772", display: { xs: 'none', md: 'flex' } }} onClick={handleOpenRemove}>
                             <PersonRemoveIcon />
                         </IconButton>
-
-                        <Modal
-                        open={openRemove}
-                        onClose={handleCloseRemove}
-                    >
-                        <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "REMOVE")} sx={data}>
-                            <Typography sx={{color: "#9e8772"}}>
-                                <strong>Are you sure you want to remove {member.username}? </strong>
-                            </Typography>
-                            <Button type="submit" sx ={{
-                            textTransform: 'none', backgroundColor: '#cd0037', color: 'white', mt: {xs:2}, alignSelf: 'center',
-                            '&:hover': {'backgroundColor': '#cd0037'}, width:"50%"
-                            }}>
-                                Remove
-                            </Button>
-                        </Box>
-                    </Modal>
+                      
                     </>
                 ) : (
                     <>
-                        <IconButton disabled sx={{ color: "#9e8772", display: { xs: 'none', md: 'flex' } }} onClick={handleEditUser}>
-                            <EditIcon />
-                        </IconButton>
                         <IconButton disabled sx={{ color: "#9e8772", display: { xs: 'none', md: 'flex' } }} onClick={handleRemoveUser}>
                             <PersonRemoveIcon />
                         </IconButton>
@@ -385,6 +197,112 @@ const MemberCard = ({member, data}) => {
                 
             </Box> 
         </Paper>
+
+        {/* EDIT USER MODAL */}
+        <Modal
+            open={openEdit}
+            onClose={handleCloseEdit}
+        >
+            <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "EDIT")} sx={data}>
+            {updateError && <Alert sx={{marginBottom:2}} severity="error">{updateError}</Alert>}
+                <Typography sx={{color: "#9e8772"}}>
+                    <strong> Edit {member.username} </strong>
+                </Typography>
+                <ThemeProvider theme={theme}>
+                <TextField
+                    id="outlined-number"
+                    value={points}
+                    error={emptyFields.includes("points")}
+                    label="Points"
+                    type="text" //don't do type="number" cuz it fucks things up
+                    fullWidth
+                    margin="normal"
+                    placeholder='Points'
+                    required
+                    InputLabelProps={{
+                    shrink: true,
+                    }}
+                    onChange={e => {
+                    const numericInput = e.target.value.replace(/\D/g, '')
+                    setPoints(numericInput !== '' ? numericInput : '')
+                    }}
+                >
+                </TextField>
+
+                <TextField
+                    id="outlined-number"
+                    value={choresComplete}
+                    error={emptyFields.includes("choresComplete")}
+                    label="Chores Complete"
+                    type="text" //don't do type="number" cuz it fucks things up
+                    fullWidth
+                    margin="normal"
+                    placeholder='Chores Complete'
+                    required
+                    InputLabelProps={{
+                    shrink: true,
+                    }}
+                    onChange={e => {
+                    const numericInput = e.target.value.replace(/\D/g, '')
+                    setChoresComplete(numericInput !== '' ? numericInput : '')
+                    }}
+                >
+                </TextField>
+
+                {/* DROPDOWN FOR SELECTING ROLE */}
+                {/* Select component for assigning a chore to a family member*/}
+                <FormControl fullWidth sx={{marginTop: 1}}>
+                    <InputLabel id="demo-simple-select-label"> Role</InputLabel>
+                    <Select
+                    disabled={member.role ==="Owner"}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={role}
+                    required
+                    error={emptyFields.includes("role")}
+                    label="Role"
+                    onChange={e => setRole(e.target.value)}
+                    >
+
+                        <MenuItem value="Admin"> Admin </MenuItem>
+                        <MenuItem value="Member"> Member </MenuItem>
+                        {(member.role === "Owner" || user.role === "Owner") && (
+                            <MenuItem value="Owner"> Owner (only 1 per family)  </MenuItem>
+                        )}
+                    </Select>
+                </FormControl>
+
+
+                </ThemeProvider>
+
+
+                <Button type="submit" sx ={{
+                textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:2}, alignSelf: 'center',
+                '&:hover': {'backgroundColor': '#81a651'}, width:"50%"
+                }}>
+                    Done
+                </Button>
+            </Box>
+        </Modal>
+
+
+        {/* REMOVE USER MODAL */}
+        <Modal
+            open={openRemove}
+            onClose={handleCloseRemove}
+        >
+            <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "REMOVE")} sx={data}>
+                <Typography sx={{color: "#9e8772"}}>
+                    <strong>Are you sure you want to remove {member.username}? </strong>
+                </Typography>
+                <Button type="submit" sx ={{
+                textTransform: 'none', backgroundColor: '#cd0037', color: 'white', mt: {xs:2}, alignSelf: 'center',
+                '&:hover': {'backgroundColor': '#cd0037'}, width:"50%"
+                }}>
+                    Remove
+                </Button>
+            </Box>
+        </Modal>
         
         </>
     )

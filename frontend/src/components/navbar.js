@@ -49,11 +49,13 @@ function Navbar() {
   const handleProfile = () => {
     router.push("/profile")
     console.log("Viewing Profile")
+    handleCloseUserMenu()
   }
 
   const handleLogout = () => {
     logout()
     console.log("Logged out")
+    handleCloseUserMenu()
   }
 
   const chooseMethod = (setting) => {
@@ -65,7 +67,7 @@ function Navbar() {
   }
 
   useEffect(() => {
-    if((!loading && user) && (user.role === "Admin" || user.role === "User") ) {
+    if((!loading && user) && (user.role === "Admin" || user.role === "User" || user.role === "Owner") ) {
       setAdmin(true)
       setPages(["Completed", "All Chores", "Family", "Assign"])
     } else {
@@ -157,7 +159,7 @@ function Navbar() {
           {(!loading && user) && (<>
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" sx={{backgroundColor: "#f9ffe9", color: '#9e8772'}}/>
+              <Avatar alt={user.username.charAt(0).toUpperCase()} src="/static/images/avatar/2.jpg" sx={{backgroundColor: "#f9ffe9", color: '#9e8772'}}/>
             </IconButton>
           </Tooltip>
           <Menu

@@ -33,6 +33,6 @@ const choreSchema = new Schema({
         ref: "User",
         required: true
     }
-}, {timestamps:true})
+}, {timestamps: true})
 
 module.exports = mongoose.model("Chore", choreSchema)

@@ -5,16 +5,14 @@ import { useFamilyContext } from '@/hooks/useFamilyContext';
 
 // Components
 import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { green } from '@mui/material/colors';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker, datePickerToolbarClasses } from '@mui/x-date-pickers/DatePicker';
+import { DatePicker} from '@mui/x-date-pickers/DatePicker';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -134,7 +132,8 @@ const ChoreForm = () => {
           rows={2}
           value={description}
           onChange={e=>setDescription(e.target.value)}
-          sx={{marginBottom:3}}
+          inputProps={{ maxLength: 500 }}
+          sx={{marginBottom:3,}}
         />
 
         {/* Date Picker */}
@@ -163,6 +162,7 @@ const ChoreForm = () => {
           InputLabelProps={{
             shrink: true,
           }}
+          inputProps={{ maxLength: 2 }}
           onChange={e => {
             const numericInput = e.target.value.replace(/\D/g, '')
             setPoints(numericInput !== '' ? numericInput : '')
@@ -181,11 +181,13 @@ const ChoreForm = () => {
           onChange={e => setAssigned_user(e.target.value)}
         >
 
-          {!user.familyId && <MenuItem value={user._id}>Me</MenuItem> }
+          <MenuItem value={user._id}>Me</MenuItem> 
+
 
           {family && family.members.map((member) => (
-            <MenuItem key={member._id} value={member._id}>{member._id===user._id ? "Me" : member.username} </MenuItem>
-          ))}
+            (member._id!==user._id && (
+            <MenuItem key={member._id} value={member._id}> {member.username} </MenuItem>
+          ))))}
         </Select>
       </FormControl>
 

@@ -4,7 +4,8 @@ const {
     getChore,
     createChore,
     deleteChore,
-    updateChore
+    updateChore,
+    markDone
 } = require("../controllers/choreController")
 
 const requireAuth = require('../middleware/requireAuth')
@@ -27,6 +28,8 @@ router.delete("/:id", deleteChore)
 
 //update a chore
 router.patch("/:id", updateChore)
+
+router.patch("/:id/markDone", markDone)
 
 
 module.exports = router

@@ -61,7 +61,6 @@ const MemberCard = ({member, data}) => {
 
         if (option === "EDIT") {
             await updateMember(member._id, role, points, choresComplete)
-            console.log("Editting user")
         } else if (option === "REMOVE") {
             await removeMember(member._id)
         }

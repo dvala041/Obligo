@@ -67,11 +67,14 @@ function Navbar() {
   }
 
   useEffect(() => {
-    if((!loading && user) && (user.role === "Admin" || user.role === "User" || user.role === "Owner") ) {
+    if((!loading && user) && (user.role === "Admin"  || user.role === "Owner") ) {
       setAdmin(true)
       setPages(["Completed", "All Chores", "Family", "Assign"])
+    } else if ((!loading && user) && user.role === "User") {
+      setAdmin(true)
+      setPages(["Completed", "Family", "Assign"])
     } else {
-      setPages(["Completed", "All Chores", "Family"])
+      setPages(["Completed", "Family"])
       setAdmin(false)
     }
     setAnchorElUser(null) //this fixes a bug i had where the userMenu would open whenever i logged in

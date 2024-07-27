@@ -7,11 +7,18 @@ export const ChoreContext = createContext()
 export const choreReducer = (state, action) => {
     switch(action.type) {
         case "SET_CHORES": 
-            return {chores: action.payload} 
+            return {...state, chores: action.payload} 
         case "CREATE_CHORE":
-            return {chores: [action.payload, ...state]}
-        case "DELETE_CHORE": 
-            return {chores: state.chores.filter((c)=> c._id != action.payload._id)}
+            return {...state, chores: [action.payload, ...state.chores]}
+        case "REMOVE_CHORE": 
+            return {...state, chores: state.chores.filter((c)=> c._id != action.payload)}
+        case "UPDATE_CHORE":
+            return {...state, chores: 
+                state.chores.map((chore) => (
+                    action.payload._id === chore._id ? action.payload : chore
+                ))
+            }
+        
         default:
             return state 
     }

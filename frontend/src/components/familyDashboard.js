@@ -134,12 +134,14 @@ const FamilyDashboard = ({ data }) => {
                         }}>
 
                         {/* THIS BUTTON OPENS THE MODAL FOR ADDING A FAMILY MEMBER ON MEDIUM SCREENS */}
+                        {user.role !== "Member" && (
                         <Button onClick={handleOpenAdd} sx ={{
                             textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:1, md: 2}, alignSelf: 'center',
                             '&:hover': {'backgroundColor': '#81a651'}, width: '60%'
                             }}>
                             Add Member
                         </Button>
+                        )}
                         <Modal
                         open={openAdd
                         }
@@ -286,13 +288,14 @@ const FamilyDashboard = ({ data }) => {
                         marginTop: {xs: 2}, // Adding margin-top for spacing
                         
                         }}>
+                        {user.role !== "Member" && (
                         <Button onClick={handleOpenAdd} sx ={{
                             textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:1, md: 2}, alignSelf: 'center',
                             '&:hover': {'backgroundColor': '#81a651'}, width: '80%'
                             }}>
                             Add Member
                         </Button>
-                        
+                        )}
                         <Button onClick={handleOpenLeave} type="submit" disabled={family.members.length === 1} sx ={{
                             textTransform: 'none', backgroundColor: '#cd0037', color: 'white', mt: {xs:1}, alignSelf: 'center',
                             '&:hover': {'backgroundColor': '#cd0037'}, width:"80%", 

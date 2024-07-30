@@ -4,7 +4,7 @@ import { useFamilyContext } from "@/hooks/useFamilyContext";
 import { useEffect } from "react"
 import { useRouter } from "next/router";
 
-import { Card, Grid } from "@mui/material";
+import { Card, Grid, Box, Typography } from "@mui/material";
 import EventCard from "@/components/eventCard";
 
 
@@ -76,13 +76,30 @@ const AllChores = () => {
 
     return(
         <>
-            <Grid container spacing={3} sx={{padding:2}}>
-                {chores && chores.map(chore => (
-                    <Grid item key={chore._id} xs={12} md={6} lg={4}>
-                    <EventCard chore={chore} userId={user._id}/>
-                    </Grid>
-                ))}
+        {chores && chores.length === 0 ? (
+        <> 
+          <Box sx  = {{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: { xs: 'center' },
+              mt: {xs: 30, md: 20}
+          }}>
+
+            <Typography sx={{color: '#9e8772', textAlign: 'center'}}>
+                Looks like you haven't assigned any chores yet!
+            </Typography>
+          </Box>
+        </>
+        ) : (
+            <Grid container spacing={3} sx={{ padding: 2 }}>
+            {chores && chores.map(chore => (
+            <Grid item key={chore._id} xs={12} md={6} lg={4}>
+                <EventCard chore={chore} userId={user._id}/>
             </Grid>
+            ))}
+        </Grid>
+        )} 
         </>
     )
 }

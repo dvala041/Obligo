@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Circle } from '@mui/icons-material';
-import { Box, Paper, Modal, Typography, Button, IconButton, TextField, FormControl, Select, InputLabel, MenuItem} from '@mui/material';
+import { Box, Paper, Modal, Typography, Button, IconButton, TextField, FormControl, Select, InputLabel, MenuItem, Alert} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useMarkDone } from '@/hooks/useMarkDone';
@@ -10,6 +10,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker} from '@mui/x-date-pickers/DatePicker';
+import { useEditChore } from '@/hooks/useEditChore';
+import { useDeleteChore } from '@/hooks/useDeleteChore';
 
 
 
@@ -75,6 +77,9 @@ export default function EventCard({ chore, userId }) {
   const { markDone } = useMarkDone();
   const { family} = useFamilyContext();
 
+  const {editChore, error, setError, isLoading, setIsLoading, emptyFields, setEmptyFields, isSuccess, setIsSuccess} = useEditChore()
+  const {deleteChore} = useDeleteChore()
+
   const date = new Date(chore.due_date)
   const readableDate = date.toLocaleDateString('en-US', options);
 
@@ -83,6 +88,7 @@ export default function EventCard({ chore, userId }) {
   const [dueDate, setDueDate] = useState(dayjs(chore.due_date))
   const [points, setPoints] = useState(chore.points)
   const [assignedUser, setAssignedUser] = useState(chore.assigned_user)
+  const [choreStatus, setChoreStatus] = useState(chore.status)
 
   const [openEdit, setOpenEdit] = useState(false)
   const [openDelete, setOpenDelete] = useState(false)
@@ -95,8 +101,9 @@ export default function EventCard({ chore, userId }) {
     setDueDate(dayjs(chore.due_date))
     setPoints(chore.points)
     setAssignedUser(chore.assigned_user)
-    // setUpdateError(false)
-    // setEmptyFields([])
+    setChoreStatus(chore.status)
+    setError(false)
+    setEmptyFields([])
   }
 
   const handleOpenDelete = () => {setOpenDelete(true)}
@@ -105,7 +112,7 @@ export default function EventCard({ chore, userId }) {
   const color = getStatusColor(chore.status.toLowerCase(), chore.due_date);
 
   const handleClick = async () => {
-    await markDone(chore.assigned_user, chore.created_by, chore._id);
+    await markDone(chore.assigned_user, chore.created_by, chore._id, chore.status, chore.points);
   };
 
   const getNameById = (id) => {
@@ -120,21 +127,19 @@ export default function EventCard({ chore, userId }) {
     e.preventDefault()
 
     if (option === "EDIT") {
-      //await updateMember(member._id, role, points, choresComplete)
-      console.log("Editting chore")
+      await editChore(title, description, dueDate, points, assignedUser, chore._id, choreStatus)
     } else if (option === "DELETE") {
-      console.log("DELETE CHORE")
-      //await removeMember(member._id)
+      await deleteChore(chore._id)
     }
   }
 
   // THIS IS NECESSARY FOR CLOSING THE MODAL AFTER A SUCCESSFUL USER UPDATE
-  // useEffect(() => {
-  //   if(isSuccess) {
-  //       handleCloseEdit()
-  //       setIsSuccess(false)
-  //   }
-  // }, [isSuccess])
+  useEffect(() => {
+    if(isSuccess) {
+        handleCloseEdit()
+        setIsSuccess(false)
+    }
+  }, [isSuccess])
 
   return (
     <> 
@@ -238,6 +243,7 @@ export default function EventCard({ chore, userId }) {
         onClose={handleCloseEdit}
       >
         <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "EDIT")} sx={style}>
+        {error && <Alert sx={{marginBottom:2}} severity="error">{error}</Alert>}
           <Typography sx={{color: "#9e8772"}}>
             <strong> Edit Chore </strong>
           </Typography>
@@ -247,7 +253,7 @@ export default function EventCard({ chore, userId }) {
           {/* Edit the title */}
           <TextField
             required
-            // error={emptyFields.includes("title")}
+            error={emptyFields.includes("title")}
             id="filled-search"
             label="Chore Title"
             type="search"
@@ -262,7 +268,7 @@ export default function EventCard({ chore, userId }) {
           {/* Edit the description */}
           <TextField
             required
-            // error={emptyFields.includes("description")}
+            error={emptyFields.includes("description")}
             id="filled-search"
             label="Chore Description"
             type="search"
@@ -292,7 +298,7 @@ export default function EventCard({ chore, userId }) {
           <TextField
               id="outlined-number"
               value={points}
-              // error={emptyFields.includes("points")}
+              error={emptyFields.includes("points")}
               label="Points"
               type="text" //don't do type="number" cuz it fucks things up
               fullWidth
@@ -316,7 +322,7 @@ export default function EventCard({ chore, userId }) {
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={assignedUser}
-              // error={emptyFields.includes("assigned_user")}
+              error={emptyFields.includes("assigned_user")}
               label="Assign To"
               onChange={e => setAssignedUser(e.target.value)}
             >
@@ -328,6 +334,25 @@ export default function EventCard({ chore, userId }) {
               ))))}
             </Select>
           </FormControl>
+
+          {/* EDIT THE CHORE STATUS */}
+          {/* Edit who its assigned to */}
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="demo-simple-select-label">Chore Status</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={choreStatus}
+              error={emptyFields.includes("status")}
+              label="Chore Status"
+              onChange={e => setChoreStatus(e.target.value)}
+            >
+              <MenuItem value={"Assigned"}>Assigned</MenuItem> 
+              <MenuItem value={"Pending"}>Pending</MenuItem> 
+              <MenuItem value={"Completed"}>Completed</MenuItem> 
+            </Select>
+          </FormControl>
+
 
 
           {/* Submit changes button */}

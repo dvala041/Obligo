@@ -1,4 +1,5 @@
 const Chore = require('../models/ChoreModel')
+const User = require('../models/UserModel')
 const mongoose = require('mongoose')
 
 //get all chores; filter it the way you like with query params
@@ -87,45 +88,76 @@ const deleteChore = async(req, res) => {
         return res.status(400).json({error: "Chore doesn't exist"})
     }
 
-    return res.status(200).json(chore)
+    return res.status(200).json(chore._id)
 }
 
 //update a chore
 const updateChore = async(req, res) => {
-    const { id } = req.params
+    const { id: choreId } = req.params
+    const {title, description, due_date, points, assigned_user, status} = req.body
 
-    if(!mongoose.isValidObjectId(id)) {
-        return res.status(400).json("Invalid ID")
+    let emptyFields = []
+
+    if(!title) {emptyFields.push("title")}
+    if(!description) { emptyFields.push("description")}
+    if(!due_date) {emptyFields.push("due_date")}
+    if(points === "" || points === null) {emptyFields.push("points")}
+    if(!assigned_user) {emptyFields.push("assigned_user")}
+    if(!status) {emptyFields.push("status")}
+
+    if(emptyFields.length > 0) {
+        return res.status(400).json({error: "Please fill all fields", emptyFields})
     }
 
-    const chore = await Chore.findByIdAndUpdate(id, {...req.body})
+    if(!mongoose.isValidObjectId(choreId) || !mongoose.isValidObjectId(assigned_user)) {
+        return res.status(400).json("Invalid ID", emptyFields)
+    }
+
+    const assigned_user_exists = User.findById(assigned_user)
+
+    if(!assigned_user_exists) {
+        return res.status(400).json({error: "User does not exist", emptyFields})
+    }
+
+    const chore = await Chore.findByIdAndUpdate(choreId, {title, description, due_date, points, assigned_user, status}, {new: true})
 
     if(!chore) {
-        return res.status(400).json("Chore doesn't exist")
+        return res.status(400).json("Chore doesn't exist", emptyFields)
     }
 
-    const updatedChore = await Chore.findById(id)
-
-    return res.status(200).json(updatedChore)
+    return res.status(200).json(chore)
 }
 
 
 const markDone = async (req, res) => {
     // Extract chore ID from request parameters
     const { id: choreId } = req.params;
-    const { created_by, assigned_user } = req.body;
+    const { created_by, assigned_user, status, points } = req.body;
   
     // Validate input
     if (!mongoose.Types.ObjectId.isValid(choreId) ||!mongoose.Types.ObjectId.isValid(created_by) || !mongoose.Types.ObjectId.isValid(assigned_user)) {
       return res.status(400).json({ error: "Invalid ID" });
     }
-  
-    // if user assigned a chore to themselves no need for pending status
-    const status = created_by === assigned_user ? "Completed" : "Pending";
+
+    let newStatus
+
+    //this runs if an admin is approving a chore hits "Done"
+    if (status === "Pending") {
+        newStatus = "Completed"
+
+    //this runs when the assigned user hits "Done"
+    } else if (status === "Assigned") {
+        newStatus = created_by === assigned_user ? "Completed" : "Pending"
+    }
+
+    let user
+    if(newStatus === "Completed") {
+        user = await User.findByIdAndUpdate(assigned_user, {$inc: {points: points, choresComplete: 1}}, {new: true, select: "-password"})
+    }
   
     try {
       // Find and update the chore
-      const chore = await Chore.findByIdAndUpdate(choreId, { status }, { new: true });
+      const chore = await Chore.findByIdAndUpdate(choreId, { status: newStatus }, { new: true });
   
       // Check if the chore exists
       if (!chore) {
@@ -133,7 +165,7 @@ const markDone = async (req, res) => {
       }
   
       // Respond with the updated chore
-      return res.status(200).json(chore);
+      return res.status(200).json({chore, user});
     } catch (error) {
       // Handle any errors that occur during the database operation
       return res.status(500).json({ error: "An error occurred while updating the chore" });

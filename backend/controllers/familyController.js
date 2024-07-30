@@ -90,6 +90,10 @@ const addMember = async(req, res) => {
         return res.status(400).json({error: "User doesn't exist", emptyFields})
     }
 
+    if(user.familyId != null) {
+        return res.status(400).json({error: "User already in another family", emptyFields})
+    }
+
     const user_id = user._id
 
     if(role !== "Admin" && role !== "Member") {

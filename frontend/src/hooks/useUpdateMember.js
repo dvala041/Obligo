@@ -25,7 +25,7 @@ export const useUpdateMember = () => {
         )
 
         const json = await response.json()
-        console.log("JSON RESPONSE: ", json)
+        // console.log("JSON RESPONSE: ", json)
 
         if(!response.ok) {
             setError(json.error)

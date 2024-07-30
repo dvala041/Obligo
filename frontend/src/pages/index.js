@@ -79,7 +79,7 @@ export default function Home() {
       fetchFamily()
     }
 
-  }, [])
+  }, [])  
 
   return (
     <>
@@ -88,7 +88,7 @@ export default function Home() {
           {router.query.message}
         </Alert>
       }
-      {/* {chores && !chores.chores ? (
+      {chores && chores.length === 0 ? (
         <> 
           <Box sx  = {{
               display: 'flex',
@@ -103,7 +103,7 @@ export default function Home() {
             </Typography>
           </Box>
         </>
-      ) : ( */}
+      ) : (
         <Grid container spacing={3} sx={{ padding: 2 }}>
         {chores && chores.map(chore => (
           <Grid item key={chore._id} xs={12} md={6} lg={4}>
@@ -111,7 +111,7 @@ export default function Home() {
           </Grid>
         ))}
       </Grid>
-      {/* )} */}
+      )} 
       
     </>
   );

@@ -146,7 +146,7 @@ const markDone = async (req, res) => {
         newStatus = "Completed"
 
     //this runs when the assigned user hits "Done"
-    } else if (status === "Assigned") {
+    } else if (status === "Assigned" || status === "Late") {
         newStatus = created_by === assigned_user ? "Completed" : "Pending"
     }
 

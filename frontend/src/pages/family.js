@@ -2,9 +2,6 @@ import { useFamilyContext } from "@/hooks/useFamilyContext"
 import { useAuthContext } from "@/hooks/useAuthContext"
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Modal, Box, Button, Container, Typography, TextField } from "@mui/material";
-import { useCreateFamily } from "@/hooks/useCreateFamily";
-import Alert from '@mui/material/Alert';
 import NoFamily from "@/components/noFamily";
 import FamilyDashboard from "@/components/familyDashboard";
 
@@ -48,9 +45,7 @@ const Family = () => {
       
             const familyJson = await familyResponse.json()
       
-            if(!familyResponse.ok) {
-                setError(familyJson.error)
-            } else {
+            if(familyResponse.ok) {
                 familyDispatch({type: 'SET_FAMILY', payload: familyJson})
             }
           } catch (error) {

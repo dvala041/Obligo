@@ -4,13 +4,17 @@ import MemberCard from "./memberCard";
 import { useAddMember } from "@/hooks/useAddMember";
 import { useDeleteFamily } from "@/hooks/useDeleteFamily";
 import { useLeaveFamily } from "@/hooks/useLeaveFamily";
+import { useUpdateFamilyName } from "@/hooks/useUpdateFamilyName";
 import { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 //Components
 import { Avatar, Box, Button, Container, Paper, Typography, Modal, TextField, Select, MenuItem, Alert, 
-    InputLabel, FormControl
+    InputLabel, FormControl,
+    IconButton,
  } from "@mui/material";
+ import EditIcon from '@mui/icons-material/Edit';
+
 
 
 
@@ -27,19 +31,31 @@ const FamilyDashboard = ({ data }) => {
     const { dispatch: familyDispatch, family } = useFamilyContext();
     const {user} = useAuthContext()
     const {addMember, isLoading, error, setError, isSuccess, setIsSuccess, emptyFields, setEmptyFields} = useAddMember()
+    const {updateFamilyName, isSuccess: isEditSuccess, setIsSuccess: setIsEditSuccess, 
+        emptyFields: editEmptyFields, setEmptyFields: setEditEmptyFields, error: editError, setError: setEditError } 
+    = useUpdateFamilyName()
     const {deleteFamily} = useDeleteFamily()
     const {leaveFamily} = useLeaveFamily()
     const [username, setUsername] = useState("")
     const [role, setRole] = useState("")
+    const [familyName, setFamilyName] = useState(family.name)
     const [openAdd, setOpenAdd] = useState(false);
     const [openLeave, setOpenLeave] = useState(false)
     const [openDelete, setOpenDelete] = useState(false)
+    const [openEdit, setOpenEdit] = useState(false)
 
     const handleOpenLeave = () => {setOpenLeave(true)}
     const handleCloseLeave = () => {setOpenLeave(false)}
 
     const handleOpenDelete = () => {setOpenDelete(true)}
     const handleCloseDelete = () => {setOpenDelete(false)}
+
+    const handleOpenEdit = () => {setOpenEdit(true)}
+    const handleCloseEdit = () => {
+        setOpenEdit(false)
+        setFamilyName(family.name)
+        setEditError("")
+    }
 
 
 
@@ -63,15 +79,29 @@ const FamilyDashboard = ({ data }) => {
             await leaveFamily(user._id)
         } else if (action === "DELETE_FAMILY") { 
             await deleteFamily()
+        } else if(action === "EDIT_FAMILY_NAME") {
+            await updateFamilyName(family._id, familyName)
         }
     }
 
+    //close modal after submitting changes
     useEffect(() => {
         if (isSuccess) {
           handleCloseAdd()
           setIsSuccess(false)
         }
       }, [isSuccess]);
+
+    
+    //close edit familyName modal
+    useEffect(() => {
+        if (isEditSuccess) {
+          handleCloseEdit()
+          setIsEditSuccess(false)
+        }
+      }, [isEditSuccess]);
+
+
 
 
     return (
@@ -95,6 +125,11 @@ const FamilyDashboard = ({ data }) => {
                     >
                         {family.name}
                     </Typography>
+                    {user.role === "Owner" && (
+                    <IconButton sx={{color: "#9e8772"}} onClick={handleOpenEdit}>
+                        <EditIcon/>
+                    </IconButton>
+                    )}
                 </Box>
 
                 {/* A box that organizes the MemberCards and buttons in a row on medium screens */}
@@ -318,6 +353,40 @@ const FamilyDashboard = ({ data }) => {
                     </Box>
 
             </Container>
+
+            <Modal
+                open={openEdit}
+                onClose={handleCloseEdit}
+            >
+
+                <Box noValidate component="form" onSubmit={(e) => handleSubmit(e, "EDIT_FAMILY_NAME")} sx={data}>
+                    {editError && <Alert sx={{marginBottom:2}} severity="error">{editError}</Alert>}
+                    <ThemeProvider theme={theme}>
+                        <Typography sx={{color: "var(--text-color)", fontWeight: 'bold'}}> Edit family name </Typography>
+                        <TextField
+                            required
+                            error={emptyFields.includes("name")}
+                            id="filled-search"
+                            label="Family Name"
+                            type="search"
+                            color="primary"
+                            fullWidth
+                            margin="normal"
+                            value={familyName}
+                            onChange={e=>setFamilyName(e.target.value)}
+                        />
+
+                        <Button type="submit" sx ={{
+                            textTransform: 'none', backgroundColor: '#81a651', color: 'white', mt: {xs:2}, alignSelf: 'center',
+                            '&:hover': {'backgroundColor': '#81a651'}, width:"50%"
+                            }}>
+                            Done
+                        </Button>
+                    </ThemeProvider>
+                </Box>
+
+
+            </Modal>
         </>
     );
 };

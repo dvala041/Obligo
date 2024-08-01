@@ -236,12 +236,19 @@ const leaveFamily = async(req, res) => {
 //edit a family (like name)
 const updateFamily = async(req, res) => {
     const { id } = req.params
+    const {name} = req.body
+
+    let emptyFields = []
+
+    if(name === "" || name === null) {emptyFields.push("name")}
+
+    if(emptyFields.length > 0) {return res.status(400).json({error: "Please include a name", emptyFields})}
 
     if(!mongoose.isValidObjectId(id)) {
         return res.status(400).json({error: "Invalid id"})
     }
 
-    const family = await Family.findByIdAndUpdate(id, {...req.body}, {new: true})
+    const family = await Family.findByIdAndUpdate(id, {name}, {new: true})
 
     if(!family) {
         return res.status(400).json({error: "Family doesn't exist"})

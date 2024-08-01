@@ -40,6 +40,10 @@ export const familyReducer = (state, action) => {
             }}
         case "DELETE_FAMILY":
             return {family: null}
+        case "UPDATE_FAMILY":
+            return {...state, family: {
+                ...state.family, name: action.payload
+            }}
 
         default:
             return state

@@ -53,9 +53,7 @@ const Completed = () => {
       
             const familyJson = await familyResponse.json()
       
-            if(!familyResponse.ok) {
-                setError(familyJson.error)
-            } else {
+            if(familyResponse.ok) { 
                 familyDispatch({type: 'SET_FAMILY', payload: familyJson})
             }
           } catch (error) {

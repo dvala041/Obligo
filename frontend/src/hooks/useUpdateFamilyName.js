@@ -1,39 +1,38 @@
 import { useState } from "react"
-import { useChoreContext } from "./useChoreContext"
 import { useAuthContext } from "./useAuthContext"
 import { useFamilyContext } from "./useFamilyContext"
 
-export const useEditChore = () => {
+export const useUpdateFamilyName = () => {
     const {user} = useAuthContext()
     const [error, setError] = useState(null)
     const [isLoading, setIsLoading] = useState(null)
-    const {dispatch: choreDispatch} = useChoreContext()
+    const {dispatch: familyDispatch} = useFamilyContext()
     const [isSuccess, setIsSuccess] = useState(null)
     const [emptyFields, setEmptyFields] = useState([]) //for red box
 
 
     //update family via family dispatch
-    const editChore = async(title, description, due_date, points, assigned_user, choreId, status) => {
+    const updateFamilyName = async(familyId, name) => {
         setError(false)
         setIsLoading(false)
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/chore/${choreId}`,
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/family/${familyId}`,
             {
                 method: "PATCH",
                 headers: {"Content-Type": "application/json", "Authorization": `Bearer ${user.token}`},
-                body: JSON.stringify({title, description, due_date, points, assigned_user, status})
+                body: JSON.stringify({name})
             }
         )
 
         const json = await response.json()
-        // console.log("JSON RESPONSE: ", json)
+        console.log("JSON RESPONSE: ", json)
 
         if(!response.ok) {
             setError(json.error)
             setEmptyFields(json.emptyFields)
             setIsSuccess(false)
         } else {
-            choreDispatch({type: "UPDATE_CHORE", payload: json})
+            familyDispatch({type: "UPDATE_FAMILY", payload: json.name})
 
 
             setEmptyFields([])
@@ -42,6 +41,6 @@ export const useEditChore = () => {
         setIsLoading(false)
     }
 
-    return {editChore, error, setError, isLoading, setIsLoading, emptyFields, setEmptyFields, isSuccess, setIsSuccess}
+    return {updateFamilyName, error, setError, isLoading, setIsLoading, emptyFields, setEmptyFields, isSuccess, setIsSuccess}
 
 }

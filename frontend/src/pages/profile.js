@@ -36,7 +36,7 @@ const Profile = () => {
         }
     
         //fetch the family if the user has a family ID that's not null and family state is null
-        if(user.familyId && !family) {
+        if(user && user.familyId && !family) {
           fetchFamily()
         }
     

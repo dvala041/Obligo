@@ -139,7 +139,7 @@ const ChoreForm = () => {
         {/* Date Picker */}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
-            label="Date"
+            label="Due Date"
             error={true}
             value={dueDate}
             sx={{ width: '100%' }}

@@ -101,7 +101,7 @@ const MemberCard = ({member, data}) => {
                         <EditIcon sx={{display: {xs:'flex', md: 'none'}}}/>
                     </IconButton>
                      {/* OTHER MEMBERS CARDS ON SMALL SCREENS (ICONS NOT DISABLED) */}
-                     {member._id !== user._id ? (
+                     {(member._id !== user._id && member.role !== "Owner") ? (
                         <>
                         <IconButton sx={{color: "#9e8772", display: {xs:'flex', md: 'none'}}} onClick={handleOpenRemove}>
                             <PersonRemoveIcon sx={{display: {xs:'flex', md: 'none'}}}/>
@@ -177,7 +177,7 @@ const MemberCard = ({member, data}) => {
                     <IconButton sx={{ color: "#9e8772", display: { xs: 'none', md: 'flex' } }} onClick={handleOpenEdit}>
                         <EditIcon />
                     </IconButton>
-                {member._id !== user._id ? ( 
+                {(member._id !== user._id && member.role !== "Owner") ? ( 
                     <>
                         <IconButton sx={{ color: "#9e8772", display: { xs: 'none', md: 'flex' } }} onClick={handleOpenRemove}>
                             <PersonRemoveIcon />

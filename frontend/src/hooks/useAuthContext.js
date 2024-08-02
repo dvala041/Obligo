@@ -7,6 +7,6 @@ export const useAuthContext = () => {
     if(!context) {
         throw Error("useAuthContext must be used inside an AuthContext provider")
     }
-    console.log("context: ", context)
+    // console.log("context: ", context)
     return context //returns {user, dispatch} where user = whatever we return in POST/api/login
 }

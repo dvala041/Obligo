@@ -9,6 +9,6 @@ export const useChoreContext = () => {
         throw Error("Component cannot access provider")
     }
 
-    console.log("CHORE CONTEXT: ", context) //the context looks like this: {chores: an array, dispatch}
+    // console.log("CHORE CONTEXT: ", context) //the context looks like this: {chores: an array, dispatch}
     return context //{chores: [], dispatch}
 }

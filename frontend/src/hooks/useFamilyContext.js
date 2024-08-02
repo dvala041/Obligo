@@ -8,6 +8,6 @@ export const useFamilyContext = () => {
     if(!context) {
         throw Error("Component cannot access provider")
     }
-    console.log("Familycontext: ", context)
+    // console.log("Familycontext: ", context)
     return context //{family: [], dispatch}
 }

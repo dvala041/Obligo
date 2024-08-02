@@ -18,7 +18,7 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use(cors({origin: "http://localhost:3000"}))
+app.use(cors({origin: "https://chore-tracker-one.vercel.app"}))
 
 
 //Middleware for checking routes

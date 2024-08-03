@@ -103,7 +103,7 @@ function Navbar() {
               textDecoration: 'none',
             }}
           >
-            Obligoat
+            Obligo
           </Typography>
           </Link>
 

@@ -27,7 +27,7 @@ function Navbar() {
   const {logout} = useLogout()
   const {user, loading, dispatch: userDispatch} = useAuthContext()
   const [admin, setAdmin] = useState(false)
-  const [pages, setPages] = useState(["Completed", "All Chores"])
+  const [pages, setPages] = useState(["Dashboard", "Completed", "All Chores"])
   const [settings, setSettings] = useState(["Profile", "Logout"])
 
   const handleOpenNavMenu = (event) => {
@@ -69,12 +69,12 @@ function Navbar() {
   useEffect(() => {
     if((!loading && user) && (user.role === "Admin"  || user.role === "Owner") ) {
       setAdmin(true)
-      setPages(["Completed", "All Chores", "Family", "Assign"])
+      setPages(["Dashboard", "Completed", "All Chores", "Family", "Assign"])
     } else if ((!loading && user) && user.role === "User") {
       setAdmin(true)
-      setPages(["Completed", "Family", "Assign"])
+      setPages(["Dashboard", "Completed", "Family", "Assign"])
     } else {
-      setPages(["Completed", "Family"])
+      setPages(["Dashboard", "Completed", "Family"])
       setAdmin(false)
     }
     setAnchorElUser(null) //this fixes a bug i had where the userMenu would open whenever i logged in
@@ -187,6 +187,13 @@ function Navbar() {
               </MenuItem>
             ))}
           </Menu> </>)}
+
+          {/* Login and Signup Options on homepage if user isn't signed in */}
+          {(!loading && !user) && (
+            <>
+              <Link href="/login" passHref> Login </Link>
+            </>
+          )}
         </Toolbar>
     </Container>
   </AppBar>

@@ -34,7 +34,7 @@ export default function Login () {
 
     useEffect(() => {
         if(user && !loading) {
-            router.push({pathname: "/", query: {showMessage: true, message: "Logged in"}})
+            router.push({pathname: "/dashboard", query: {showMessage: true, message: "Logged in"}})
             return 
         }
 

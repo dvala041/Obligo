@@ -16,6 +16,7 @@ import { useLogout } from '@/hooks/useLogout';
 import { useAuthContext } from '@/hooks/useAuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/router'
+import {ClipboardList} from 'lucide-react'
 
 // const pages = ['Completed', 'All chores'];
 // const settings = ['Profile', 'Logout'];
@@ -85,7 +86,8 @@ function Navbar() {
       <Container maxWidth="xl" sx={{ height: '100%' }}> {/* Make the container fill the height */}
         <Toolbar disableGutters sx={{ height: '100%', alignItems: 'center' }}> {/* Make the toolbar fill the height and vertically center its contents */}
           <Link href="/" passHref>
-            <img src="/chores.png" alt="Chores Logo" style={{ display: { xs: 'flex', md: 'none' }, width: '25px', height: 'auto', marginRight: "15px" }} />
+          <ClipboardList className="h-8 w-8 text-[#f5f5d5] mr-2" />
+            {/* <img src="/chores.png" alt="Chores Logo" style={{ display: { xs: 'flex', md: 'none' }, width: '25px', height: 'auto', marginRight: "15px" }} /> */}
           </Link>
 
           <Link href="/" passHref>
@@ -111,7 +113,7 @@ function Navbar() {
              <Link key={page} href={`/${page.toLowerCase().replace(' ', '-')}`} passHref>
              <Button
               onClick={handleCloseNavMenu}
-              sx={{ display: {xs: "none", md: "flex"}, mx: 1, color: '#f5f5d5', fontFamily: "calibri", textTransform: "none", fontSize: 'inherit' }}
+              sx={{ display: {xs: "none", md: "flex"}, mx: 1, color: '#f5f5d5', fontFamily: "sans-serif", textTransform: "none", fontSize: 'inherit' }}
             >
               {page}
             </Button>

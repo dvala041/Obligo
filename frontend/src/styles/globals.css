@@ -33,9 +33,9 @@
 } */
 
 body {
-  background: #f9ffe9;
+  /* background: #f9ffe9; */
   margin: 0;
-  font-family: "Poppins";
+  font-family: sans-serif;
 }
 
 @layer utilities {

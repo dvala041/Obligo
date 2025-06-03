@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import Navbar from "../components/navbar";
+import { Analytics } from "@vercel/analytics/next"
 
 import { ChoresContextProvider } from "@/context/ChoreContext";
 import { AuthContextProvider } from "@/context/AuthContext";
@@ -16,6 +17,7 @@ export default function App({ Component, pageProps }) {
           <div> 
             {showMessage && <Navbar />}
             <Component {...pageProps} />
+            <Analytics />
           </div>
         </ChoresContextProvider>
       </FamilyContextProvider>
